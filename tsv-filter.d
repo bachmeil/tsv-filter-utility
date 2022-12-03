@@ -1059,6 +1059,7 @@ string[] tsvFilter(FilterMode mode)(string s, ref TsvFilterOptions cmdopt) {
     import std.algorithm : all, any, splitter;
     import std.format : formattedWrite;
     import std.range;
+    import std.array: appender;
     import tsv_utils.common.utils : bufferedByLine, BufferedOutputRange, InputSourceRange,
         LineBuffered, throwIfWindowsNewline;
 
@@ -1117,7 +1118,7 @@ string[] tsvFilter(FilterMode mode)(string s, ref TsvFilterOptions cmdopt) {
     immutable size_t fileBodyStartLine = cmdopt.hasHeader ? 2 : 1;
     auto lineFields = new char[][](fieldIndexEnd);
 
-       string[] result;
+        auto result = appender!(string[]);
         foreach (lineNum, line; s.to!(char[]).lineSplitter.enumerate(fileBodyStartLine)) {
 
           /* Copy the needed number of fields to the fields array. */
@@ -1158,7 +1159,7 @@ string[] tsvFilter(FilterMode mode)(string s, ref TsvFilterOptions cmdopt) {
               else
               {
                   if (passed) {
-                    result ~= line.to!string;
+                    result.put(line.to!string);
                   }
               }
           }
@@ -1167,5 +1168,5 @@ string[] tsvFilter(FilterMode mode)(string s, ref TsvFilterOptions cmdopt) {
           }
           
     }
-    return result;
+    return result[];
 }
