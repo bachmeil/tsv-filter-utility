@@ -1035,17 +1035,27 @@ struct TsvFilterOptions
 
 enum FilterMode { filter, count, label };
 
-void tsvFilterCommand(string s, ref TsvFilterOptions cmdopt)
+string[] tsvFilterCommand(string s, ref TsvFilterOptions cmdopt)
 {
-    if (cmdopt.countMatches) tsvFilter!(FilterMode.count)(s, cmdopt);
-    else if (cmdopt.isLabeling) tsvFilter!(FilterMode.label)(s, cmdopt);
-    else tsvFilter!(FilterMode.filter)(s, cmdopt);
+    if (cmdopt.countMatches) {
+      return tsvFilter!(FilterMode.count)(s, cmdopt);
+    } else if (cmdopt.isLabeling) {
+      return tsvFilter!(FilterMode.label)(s, cmdopt);
+    } else {
+      return tsvFilter!(FilterMode.filter)(s, cmdopt);
+    }
+}
+
+string[] grep(string s, string[] options) {
+  TsvFilterOptions cmdopt;
+  string[] tmp = [""] ~ options;
+  cmdopt.processArgs(tmp);
+  return(tsvFilterCommand(s, cmdopt));
 }
 
 /** tsvFilter processes the input files and runs the tests.
  */
-void tsvFilter(FilterMode mode)(string s, ref TsvFilterOptions cmdopt)
-{
+string[] tsvFilter(FilterMode mode)(string s, ref TsvFilterOptions cmdopt) {
     import std.algorithm : all, any, splitter;
     import std.format : formattedWrite;
     import std.range;
@@ -1176,6 +1186,6 @@ void tsvFilter(FilterMode mode)(string s, ref TsvFilterOptions cmdopt)
           }
           
     }
-    writeln(result);
+    return result;
     //~ static if (mode == FilterMode.count) writeln(matchedLines);
 }

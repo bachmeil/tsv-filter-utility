@@ -7,9 +7,9 @@ int main(string[] cmdArgs)
 "abc\tdef\t123
 ghi\tjkl\t456
 mno\tpqr\t789";
-  grep(str, ["--str-eq", "3:789"]);
+  writeln(grep(str, ["--str-eq", "3:789"]));
   writeln("");
-  grep(str, ["--gt", "3:400"]);
+  writeln(grep(str, ["--gt", "3:400"]));
     //~ /* When running in DMD code coverage mode, turn on report merging. */
     //~ version(D_Coverage) version(DigitalMars)
     //~ {
@@ -30,12 +30,5 @@ mno\tpqr\t789";
         //~ return 1;
     //~ }
     return 0;
-}
-
-void grep(string s, string[] options) {
-  TsvFilterOptions cmdopt;
-  string[] tmp = [""] ~ options;
-  cmdopt.processArgs(tmp);
-  tsvFilterCommand(s, cmdopt);
 }
   
