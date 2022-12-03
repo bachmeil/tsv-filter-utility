@@ -1118,43 +1118,43 @@ string[] tsvFilter(FilterMode mode)(string s, ref TsvFilterOptions cmdopt) {
     immutable size_t fileBodyStartLine = cmdopt.hasHeader ? 2 : 1;
     auto lineFields = new char[][](fieldIndexEnd);
 
-        auto result = appender!(string[]);
-        foreach (lineNum, line; s.to!(char[]).lineSplitter.enumerate(fileBodyStartLine)) {
+    auto result = appender!(string[]);
+    foreach (lineNum, line; s.to!(char[]).lineSplitter.enumerate(fileBodyStartLine)) {
 
-          /* Copy the needed number of fields to the fields array. */
-          size_t fieldIndex = 0;
+      /* Copy the needed number of fields to the fields array. */
+      size_t fieldIndex = 0;
 
-          foreach (fieldValue; line.splitter(cmdopt.delim).take(fieldIndexEnd))
-          {
-              lineFields[fieldIndex] = fieldValue;
-              fieldIndex++;
-          }
+      foreach (fieldValue; line.splitter(cmdopt.delim).take(fieldIndexEnd))
+      {
+          lineFields[fieldIndex] = fieldValue;
+          fieldIndex++;
+      }
 
-          if (fieldIndex == 0 && fieldIndexEnd != 0)
-          {
-              assert(line.length == 0);
-              /* Bug work-around. Currently empty lines are not handled properly by splitter.
-               *   Bug: https://issues.dlang.org/show_bug.cgi?id=15735
-               *   Pull Request: https://github.com/D-Programming-Language/phobos/pull/4030
-               * Work-around: Point to the line. It's an empty string.
-               */
-              lineFields[fieldIndex] = line;
-              fieldIndex++;
-          }
-
-         /* Run the tests. Tests will fail (throw) if a field cannot be converted
-           * to the expected type.
+      if (fieldIndex == 0 && fieldIndexEnd != 0)
+      {
+          assert(line.length == 0);
+          /* Bug work-around. Currently empty lines are not handled properly by splitter.
+           *   Bug: https://issues.dlang.org/show_bug.cgi?id=15735
+           *   Pull Request: https://github.com/D-Programming-Language/phobos/pull/4030
+           * Work-around: Point to the line. It's an empty string.
            */
-            bool passed = cmdopt.disjunct ?
-                cmdopt.tests.any!(x => x(lineFields)) :
-                cmdopt.tests.all!(x => x(lineFields));
-            if (cmdopt.invert) passed = !passed;
+          lineFields[fieldIndex] = line;
+          fieldIndex++;
+      }
 
-            static if (mode == FilterMode.count) {
-                if (passed) { ++matchedLines; }
-            } else {
-                if (passed) { result.put(line.to!string); }
-            }
+     /* Run the tests. Tests will fail (throw) if a field cannot be converted
+       * to the expected type.
+       */
+      bool passed = cmdopt.disjunct ?
+          cmdopt.tests.any!(x => x(lineFields)) :
+          cmdopt.tests.all!(x => x(lineFields));
+      if (cmdopt.invert) { passed = !passed; }
+
+      static if (mode == FilterMode.count) {
+          if (passed) { ++matchedLines; }
+      } else {
+          if (passed) { result.put(line.to!string); }
+      }
     }
     return result[];
 }
