@@ -1117,12 +1117,8 @@ string[] tsvFilter(FilterMode mode)(string s, ref TsvFilterOptions cmdopt) {
     immutable size_t fileBodyStartLine = cmdopt.hasHeader ? 2 : 1;
     auto lineFields = new char[][](fieldIndexEnd);
 
-    //~ foreach (inputStream; cmdopt.inputSources)
-    //~ {
-        //~ if (cmdopt.hasHeader) throwIfWindowsNewline(inputStream.header, inputStream.name, 1);
-        string[] result;
+       string[] result;
         foreach (lineNum, line; s.to!(char[]).lineSplitter.enumerate(fileBodyStartLine)) {
-          //~ if (lineNum == 1) throwIfWindowsNewline(line, inputStream.name, lineNum);
 
           /* Copy the needed number of fields to the fields array. */
           size_t fieldIndex = 0;
@@ -1145,11 +1141,7 @@ string[] tsvFilter(FilterMode mode)(string s, ref TsvFilterOptions cmdopt) {
               fieldIndex++;
           }
 
-          //~ enforce(fieldIndex == cast(long) fieldIndexEnd,
-                  //~ format("Not enough fields in line. File: %s, Line: %s",
-                         //~ inputStream.name, lineNum));
-
-          /* Run the tests. Tests will fail (throw) if a field cannot be converted
+         /* Run the tests. Tests will fail (throw) if a field cannot be converted
            * to the expected type.
            */
           try
@@ -1163,14 +1155,8 @@ string[] tsvFilter(FilterMode mode)(string s, ref TsvFilterOptions cmdopt) {
               {
                   if (passed) ++matchedLines;
               }
-              else static if (mode == FilterMode.label)
-              {
-                  //~ bufferedOutput.appendln(line, cmdopt.delim,
-                                          //~ passed ? cmdopt.trueLabel : cmdopt.falseLabel);
-              }
               else
               {
-                  //~ if (passed) bufferedOutput.appendln(line);
                   if (passed) {
                     result ~= line.to!string;
                   }
@@ -1178,14 +1164,8 @@ string[] tsvFilter(FilterMode mode)(string s, ref TsvFilterOptions cmdopt) {
           }
           catch (Exception e)
           {
-              //~ static if (mode != FilterMode.count) bufferedOutput.flush;
-              //~ throw new Exception(
-                  //~ format("Could not process line or field: %s\n  File: %s Line: %s%s",
-                         //~ e.msg, inputStream.name, lineNum,
-                         //~ (lineNum == 1) ? "\n  Is this a header line? Use --header to skip." : ""));
           }
           
     }
     return result;
-    //~ static if (mode == FilterMode.count) writeln(matchedLines);
 }
