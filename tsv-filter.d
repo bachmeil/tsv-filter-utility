@@ -1053,9 +1053,24 @@ string[] grep(string s, string[] options) {
   return(tsvFilterCommand(s, cmdopt));
 }
 
+/* Find only the first matching string, if any */
+string grepFirst(string s, string[] options) {
+  TsvFilterOptions cmdopt;
+  string[] tmp = [""] ~ options;
+  cmdopt.processArgs(tmp);
+  auto result = tsvFilterCommand(s, cmdopt);
+  if (result.length == 0) {
+    return "";
+  } else {
+    return(result[0]);
+  }
+}
+
 /** tsvFilter processes the input files and runs the tests.
+ * singleton indicates that there is at most one value in the output.
+ * This handles the case of searching for a record with a unique id.
  */
-string[] tsvFilter(FilterMode mode)(string s, ref TsvFilterOptions cmdopt) {
+string[] tsvFilter(FilterMode mode, bool singleton=false)(string s, ref TsvFilterOptions cmdopt) {
     import std.algorithm : all, any, splitter;
     import std.format : formattedWrite;
     import std.range;
@@ -1153,7 +1168,10 @@ string[] tsvFilter(FilterMode mode)(string s, ref TsvFilterOptions cmdopt) {
       static if (mode == FilterMode.count) {
           if (passed) { ++matchedLines; }
       } else {
-          if (passed) { result.put(line.to!string); }
+          if (passed) { 
+            result.put(line.to!string); 
+            static if (singleton) { break; }
+          }
       }
     }
     return result[];
