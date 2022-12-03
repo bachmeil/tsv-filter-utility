@@ -1145,28 +1145,16 @@ string[] tsvFilter(FilterMode mode)(string s, ref TsvFilterOptions cmdopt) {
          /* Run the tests. Tests will fail (throw) if a field cannot be converted
            * to the expected type.
            */
-          try
-          {
-              bool passed = cmdopt.disjunct ?
-                  cmdopt.tests.any!(x => x(lineFields)) :
-                  cmdopt.tests.all!(x => x(lineFields));
-              if (cmdopt.invert) passed = !passed;
+            bool passed = cmdopt.disjunct ?
+                cmdopt.tests.any!(x => x(lineFields)) :
+                cmdopt.tests.all!(x => x(lineFields));
+            if (cmdopt.invert) passed = !passed;
 
-              static if (mode == FilterMode.count)
-              {
-                  if (passed) ++matchedLines;
-              }
-              else
-              {
-                  if (passed) {
-                    result.put(line.to!string);
-                  }
-              }
-          }
-          catch (Exception e)
-          {
-          }
-          
+            static if (mode == FilterMode.count) {
+                if (passed) { ++matchedLines; }
+            } else {
+                if (passed) { result.put(line.to!string); }
+            }
     }
     return result[];
 }
