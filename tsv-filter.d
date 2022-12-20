@@ -1035,14 +1035,14 @@ struct TsvFilterOptions
 
 enum FilterMode { filter, count, label };
 
-string[] tsvFilterCommand(string s, ref TsvFilterOptions cmdopt)
+string[] tsvFilterCommand(bool singleton=false)(string s, ref TsvFilterOptions cmdopt)
 {
     if (cmdopt.countMatches) {
-      return tsvFilter!(FilterMode.count)(s, cmdopt);
+      return tsvFilter!(FilterMode.count, false)(s, cmdopt);
     } else if (cmdopt.isLabeling) {
-      return tsvFilter!(FilterMode.label)(s, cmdopt);
+      return tsvFilter!(FilterMode.label, false)(s, cmdopt);
     } else {
-      return tsvFilter!(FilterMode.filter)(s, cmdopt);
+      return tsvFilter!(FilterMode.filter, singleton)(s, cmdopt);
     }
 }
 
@@ -1053,12 +1053,13 @@ string[] grep(string s, string[] options) {
   return(tsvFilterCommand(s, cmdopt));
 }
 
-/* Find only the first matching string, if any */
+/* Find only the first matching string, if any
+   requires setting singleton=true */
 string grepFirst(string s, string[] options) {
   TsvFilterOptions cmdopt;
   string[] tmp = [""] ~ options;
   cmdopt.processArgs(tmp);
-  auto result = tsvFilterCommand(s, cmdopt);
+  auto result = tsvFilterCommand!true(s, cmdopt);
   if (result.length == 0) {
     return "";
   } else {
